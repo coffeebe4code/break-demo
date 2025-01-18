@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [-xc-header, -std=c2x, -Wall, -Werror, -Wextra]
+  Add: [-xc-header, -std=c2x, -Wall, -Werror, -Wextra, -I./pieces, -I/usr/local/include/SDL3]
