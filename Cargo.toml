@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "break-desktop", 
+  "break-main", 
+  "break-wasm", 
+  "engine",
+]
+resolver = "2"
+

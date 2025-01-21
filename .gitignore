@@ -1,2 +1,7 @@
 target
 vendor
+/pkg
+
+# Added by cargo
+
+/target

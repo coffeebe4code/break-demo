@@ -1,0 +1,10 @@
+[package]
+name = "break-main"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+winit = "0.29"
+image = { version = "0.24", features = ["png"] }
+engine = { path = "../engine" }
+wgpu = "24.0.0"
