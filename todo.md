@@ -1,7 +1,7 @@
 ### Project Helpers
-- add cargo watch
-- add mold for dev builds
-- create break-test
+- add cargo watch [X]
+- add mold for dev builds [X]
+- create break-test (awaiting better engine modulation)
     - module and data driven loader
 - switch to node to serve solution
 - add more make commands
@@ -32,10 +32,11 @@
 - create first shader
     - spinning pieces
     - electric pieces
-    - board power use
+    - board power use on borders
 - media query like sizes for the board.
     - lt 2048, 1024, 512
 - create more assets
     - 100, 200, 300, 400 powers
 - first load is odd
     - look to load a black screen as fast as possible
+    - maybe don't configure any assets or passes/pipelines until after "update" is called

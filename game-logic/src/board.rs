@@ -3,15 +3,14 @@ use rand::Rng;
 use rand::SeedableRng;
 
 use crate::coord::Coord;
-use crate::piece::*;
 use crate::single::*;
 use crate::triple::*;
 
 pub struct Board {
     pub seed: StdRng,
     pub next: [Triple; 2],
-    pub board: [[Option<Single>; 6]; 19],
-    pub sister_board: [[Option<Single>; 6]; 19],
+    pub board: [[Option<Single>; 19]; 6],
+    pub sister_board: [[Option<Single>; 19]; 6],
     pub b_count: u32,
     pub r_count: u32,
     pub e_count: u32,
@@ -26,12 +25,22 @@ impl Board {
 
         let next = [from_random(&mut seed), from_random(&mut seed)];
         let board = {
-            let row = { [None, None, None, None, None, None] };
-            [row.clone(); 19]
+            let row = {
+                [
+                    None, None, None, None, None, None, None, None, None, None, None, None, None,
+                    None, None, None, None, None, None,
+                ]
+            };
+            [row.clone(); 6]
         };
         let sister_board = {
-            let row = { [None, None, None, None, None, None] };
-            [row.clone(); 19]
+            let row = {
+                [
+                    None, None, None, None, None, None, None, None, None, None, None, None, None,
+                    None, None, None, None, None, None,
+                ]
+            };
+            [row.clone(); 6]
         };
 
         Self {
