@@ -24,6 +24,24 @@ pub async fn main_work() -> () {
         },
     ];
     let mut pass = Pass::new(&context.device, &context.config, &attributes);
+
+    let indices_pb = &[0, 1, 2, 2, 3, 0];
+    let diffuse_bytes_pb = include_bytes!("../../assets/PowerBorder.png");
+    let texture_pb = Texture::from_bytes(
+        &context.device,
+        &context.queue,
+        diffuse_bytes_pb,
+        "PowerBorder",
+    )
+    .unwrap();
+    let pb = vec![
+        vertex([-0.10, -0.10, 0.0], [0, 1]),
+        vertex([-0.20, -0.10, 0.0], [1, 1]),
+        vertex([-0.20, -1.00, 0.0], [1, 0]),
+        vertex([-0.10, -1.00, 0.0], [0, 0]),
+    ];
+    pass.add(indices_pb, &pb, texture_pb, &context.device);
+
     let indices_b = &[0, 1, 2, 2, 3, 0];
     let diffuse_bytes_b = include_bytes!("../../assets/B.png");
     let texture_b =
