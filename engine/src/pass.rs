@@ -2,19 +2,6 @@ use crate::texture::Texture;
 use crate::vertex::Vertex;
 use wgpu::util::DeviceExt;
 
-pub struct PassManager {
-    pub passes: Vec<Box<dyn Passable>>,
-}
-
-impl PassManager {
-    pub fn new() -> Self {
-        Self { passes: vec![] }
-    }
-    pub fn add(&mut self, pass: Box<dyn Passable>) -> () {
-        self.passes.push(pass);
-    }
-}
-
 pub struct Pass<'b> {
     pub textures: Vec<Texture>,
     pub diffuse_bind_groups: Vec<wgpu::BindGroup>,
@@ -204,7 +191,7 @@ impl<'b> Passable for Pass<'b> {
                 timestamp_writes: None,
             });
             render_pass.set_pipeline(&self.render_pipeline);
-            for (x, _) in self.textures.iter().enumerate() {
+            for (x, _) in self.vertexes.iter().enumerate() {
                 render_pass.set_vertex_buffer(0, self.vert_buffers.get(x).unwrap().slice(..));
                 render_pass.set_index_buffer(
                     self.index_buffers.get(x).unwrap().slice(..),
