@@ -4,6 +4,8 @@ members = [
   "break-main", 
   "break-wasm", 
   "engine",
+  "game-logic",
+  "render-logic",
 ]
 resolver = "2"
 
