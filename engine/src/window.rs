@@ -43,7 +43,7 @@ impl Window {
         }
         let window = WindowBuilder::new()
             .with_title("Break! Game")
-            .with_maximized(false)
+            .with_maximized(true)
             .build(&event_loop)
             .unwrap();
 

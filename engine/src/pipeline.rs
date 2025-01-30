@@ -1,15 +1,18 @@
-use crate::layout::Layout;
+use crate::{description::Description, layout::Layout};
 
-pub struct Pipeline {
+pub struct Pipeline<'a> {
+    pub layout: &'a Layout<'a>,
+    pub descriptions: Vec<&'a Description>,
     pub pipeline: wgpu::RenderPipeline,
 }
 
-impl Pipeline {
+impl<'a> Pipeline<'a> {
     pub fn new(
+        layout: &'a Layout,
+        descriptions: Vec<&'a Description>,
         device: &wgpu::Device,
-        config: &wgpu::SurfaceConfiguration,
-        layout: &Layout,
         name: &'static str,
+        config: &wgpu::SurfaceConfiguration,
     ) -> Self {
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some(&format!("pipeline: {}", name)),
@@ -51,6 +54,10 @@ impl Pipeline {
             multiview: None,
             cache: None,
         });
-        Self { pipeline }
+        Self {
+            layout,
+            descriptions,
+            pipeline,
+        }
     }
 }
