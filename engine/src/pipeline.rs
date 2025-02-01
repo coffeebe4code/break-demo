@@ -2,16 +2,16 @@ use crate::{description::Description, layout::Layout};
 
 pub struct Pipeline<'a> {
     pub layout: &'a Layout<'a>,
-    pub descriptions: Vec<&'a Description>,
+    pub descriptions: &'a [Description<'a>],
     pub pipeline: wgpu::RenderPipeline,
 }
 
 impl<'a> Pipeline<'a> {
     pub fn new(
-        layout: &'a Layout,
-        descriptions: Vec<&'a Description>,
+        layout: &'a Layout<'a>,
+        descriptions: &'a [Description<'a>],
         device: &wgpu::Device,
-        name: &'static str,
+        name: &str,
         config: &wgpu::SurfaceConfiguration,
     ) -> Self {
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {

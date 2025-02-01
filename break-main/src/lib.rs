@@ -1,7 +1,7 @@
 use engine::{
     context::Context,
     empty::EmptyPass,
-    pass::{Pass, Passable},
+    pass::PipelinePass,
     texture::Texture,
     vertex::vertex,
     window::{Window, WindowEvents},

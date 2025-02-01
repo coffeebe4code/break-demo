@@ -1,21 +1,23 @@
 use crate::{layout::Layout, texture::Texture};
 
-pub struct Description {
-    pub texture: Texture,
+pub type DescriptionId = u32;
+
+pub struct Description<'t> {
+    pub texture: &'t Texture,
     pub diffuse_bind_group: wgpu::BindGroup,
 }
 
-impl Description {
+impl<'t> Description<'t> {
     pub fn new(
-        texture: Texture,
+        texture: &'t Texture,
         device: &wgpu::Device,
-        entries: &[wgpu::BindGroupEntry],
+        entries: Vec<wgpu::BindGroupEntry>,
         layout: &Layout,
-        name: &'static str,
+        name: &str,
     ) -> Self {
         let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &layout.bind_group_layout,
-            entries,
+            entries: &entries,
             label: Some(&format!("diffuse_bind_group: {}", name)),
         });
         Self {

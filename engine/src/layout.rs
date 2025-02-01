@@ -21,7 +21,7 @@ impl<'a> Layout<'a> {
         attrs: &'a [VertexAttribute],
         device: &Device,
         shader_source: &'static str,
-        name: &'static str,
+        name: &str,
     ) -> Self {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
