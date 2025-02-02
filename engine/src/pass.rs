@@ -5,41 +5,41 @@ use crate::vertex::Vertex;
 
 pub struct PipelinePass<'a> {
     pub pipeline: &'a Pipeline<'a>,
-    pub description_ids: Vec<DescriptionId>,
+    pub descriptions: Vec<DescriptionId>,
     // todo:: could look into using the same vert_buffer since it uses indexes
     pub vert_buffers: Vec<wgpu::Buffer>,
     pub index_buffers: Vec<wgpu::Buffer>,
 }
 
 impl<'a, 'p> PipelinePass<'a> {
-    pub fn new(pipeline: &'a Pipeline<'a>) -> Self {
+    pub fn new(pipeline: &'a Pipeline) -> Self {
         Self {
             pipeline,
-            description_ids: vec![],
+            descriptions: vec![],
             vert_buffers: vec![],
             index_buffers: vec![],
         }
     }
-    pub fn prepare_description(
+    pub fn configure_description_buffers(
         &mut self,
-        description_id: u32,
+        description: u32,
         queue: &wgpu::Queue,
         device: &wgpu::Device,
         index_arr: &'p [u16],
         vertex_arr: &'p [Vertex],
     ) -> DescriptionId {
-        self.description_ids.push(description_id);
-        let index = (self.description_ids.len() - 1) as u32;
+        self.descriptions.push(description);
+        let index = (self.descriptions.len() - 1) as u32;
         let vert_buff = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some(&format!("vert buff description id: {}", description_id)),
+            label: Some(&format!("vert buff description id: {}", description)),
             size: (vertex_arr.len() * std::mem::size_of::<Vertex>()) as u64,
             usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
         let index_buff = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some(&format!("index buff description id: {}", description_id)),
+            label: Some(&format!("index buff description id: {}", description)),
             size: (vertex_arr.len() * std::mem::size_of::<u16>()) as u64,
-            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+            usage: wgpu::BufferUsages::INDEX | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
 
@@ -93,7 +93,7 @@ impl<'a, 'p> PipelinePass<'a> {
             let index_buff = device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some(&format!("index buff description id: {}", description_id)),
                 size: index_size,
-                usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+                usage: wgpu::BufferUsages::INDEX | wgpu::BufferUsages::COPY_DST,
                 mapped_at_creation: false,
             });
             self.vert_buffers[index] = vert_buff;
@@ -131,7 +131,7 @@ impl<'a, 'p> PipelinePass<'a> {
                 timestamp_writes: None,
             });
             render_pass.set_pipeline(&self.pipeline.pipeline);
-            for (idx, id) in self.description_ids.iter().enumerate() {
+            for (idx, id) in self.descriptions.iter().enumerate() {
                 render_pass.set_vertex_buffer(0, self.vert_buffers.get(idx).unwrap().slice(..));
                 render_pass.set_index_buffer(
                     self.index_buffers.get(idx).unwrap().slice(..),

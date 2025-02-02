@@ -1,15 +1,14 @@
 use crate::{description::Description, layout::Layout};
 
 pub struct Pipeline<'a> {
-    pub layout: &'a Layout<'a>,
-    pub descriptions: &'a [Description<'a>],
     pub pipeline: wgpu::RenderPipeline,
+    pub descriptions: Vec<&'a Description<'a>>,
 }
 
 impl<'a> Pipeline<'a> {
     pub fn new(
-        layout: &'a Layout<'a>,
-        descriptions: &'a [Description<'a>],
+        layout: &Layout,
+        descriptions: Vec<&'a Description<'a>>,
         device: &wgpu::Device,
         name: &str,
         config: &wgpu::SurfaceConfiguration,
@@ -55,9 +54,8 @@ impl<'a> Pipeline<'a> {
             cache: None,
         });
         Self {
-            layout,
-            descriptions,
             pipeline,
+            descriptions,
         }
     }
 }
