@@ -1,5 +1,6 @@
 use crate::window::Window;
 
+#[derive(Debug)]
 pub struct Context {
     pub surface: wgpu::Surface<'static>,
     pub device: wgpu::Device,

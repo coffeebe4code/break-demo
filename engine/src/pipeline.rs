@@ -1,14 +1,16 @@
+use std::rc::Rc;
+
 use crate::{context::Context, description::Description, layout::Layout};
 
-pub struct Pipeline<'a> {
+pub struct Pipeline {
     pub pipeline: wgpu::RenderPipeline,
-    pub descriptions: Vec<&'a Description<'a>>,
+    pub descriptions: Vec<Rc<Description>>,
 }
 
-impl<'a> Pipeline<'a> {
+impl Pipeline {
     pub fn new(
         layout: &Layout,
-        descriptions: Vec<&'a Description<'a>>,
+        descriptions: Vec<Rc<Description>>,
         context: &Context,
         name: &str,
     ) -> Self {

@@ -10,22 +10,20 @@ pub enum BindGroupType {
     TextureView,
 }
 
-pub struct Description<'t> {
-    pub entries: Vec<BindGroupType>,
-    pub texture: Option<&'t Texture>,
-    pub diffuse_bind_group: Option<wgpu::BindGroup>,
+#[derive(Debug)]
+pub struct Description {
+    pub diffuse_bind_group: wgpu::BindGroup,
 }
 
-impl<'t> Description<'t> {
-    pub fn update(
-        &mut self,
-        texture: &'t Texture,
+impl Description {
+    pub fn new(
+        texture: &Texture,
+        entries: &[BindGroupType],
         device: &wgpu::Device,
         layout: &Layout,
         name: &str,
-    ) {
-        let bgs: Vec<BindGroupEntry> = self
-            .entries
+    ) -> Self {
+        let bgs: Vec<BindGroupEntry> = entries
             .iter()
             .enumerate()
             .map(|(i, x)| match x {
@@ -49,12 +47,6 @@ impl<'t> Description<'t> {
             entries: &bgs,
             label: Some(&format!("diffuse_bind_group: {}", name)),
         });
-    }
-    pub fn new(entries: Vec<BindGroupType>) -> Self {
-        Self {
-            entries,
-            texture: None,
-            diffuse_bind_group: None,
-        }
+        Self { diffuse_bind_group }
     }
 }

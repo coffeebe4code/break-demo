@@ -7,7 +7,7 @@ use wgpu::ShaderModule;
 use wgpu::VertexAttribute;
 use wgpu::VertexBufferLayout;
 
-use crate::vertex::Vertex;
+use crate::vertex::Vertex2DTexture;
 
 pub struct Layout<'a> {
     pub pipeline_layout: PipelineLayout,
@@ -46,6 +46,7 @@ impl<'a> Layout<'a> {
             ],
             label: Some(&format!("bind_group_layout: {}", name)),
         });
+
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some(&format!("pipeline_layout: {}", name)),
             bind_group_layouts: &[&bind_group_layout],
@@ -53,7 +54,7 @@ impl<'a> Layout<'a> {
         });
 
         let vertex_buffer_layout = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+            array_stride: std::mem::size_of::<Vertex2DTexture>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: attrs,
         };
