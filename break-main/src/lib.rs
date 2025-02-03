@@ -1,6 +1,6 @@
 use engine::{
     context::Context,
-    passmanager::{Pass, Passable},
+    pass::{Pass, Passable},
     texture::Texture,
     vertex::vertex,
     window::{Window, WindowEvents},
