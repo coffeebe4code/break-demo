@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use engine::{context::Context, description::BindGroupType, scene::Scene, vertex::Vertex2DTexture};
 use wgpu::{SurfaceError, VertexAttribute};
 
@@ -37,13 +35,13 @@ impl<'a> IntroContainer<'a> {
                 context,
             )
             .add_description(
-                "b entries",
+                "b description",
                 "B",
                 &[BindGroupType::TextureView, BindGroupType::Sampler],
                 "standard layout",
                 context,
             )
-            .compile_pipeline("intro", &["b entries"], "standard layout", context);
+            .compile_pipeline("intro", &["b description"], "standard layout", context);
         Self { scene }
     }
     pub fn update(

@@ -23,7 +23,6 @@ impl Texture {
         let metadata = fs::metadata(&file).expect("unable to read metadata");
         let mut buffer = vec![0; metadata.len() as usize];
         f.read(&mut buffer).expect("buffer overflow");
-        println!("buffer : {:#?}", buffer);
 
         Texture::from_bytes(device, queue, &buffer, label)
     }

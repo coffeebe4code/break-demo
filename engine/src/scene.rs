@@ -44,6 +44,7 @@ impl<'a> Scene<'a> {
         context: &Context,
     ) -> Self {
         let layout = Layout::new(attrs, &context.device, shader_source, name);
+        println!("layout {:#?}", layout);
         self.layouts.insert(name.to_string(), layout);
         self
     }

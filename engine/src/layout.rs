@@ -9,6 +9,7 @@ use wgpu::VertexBufferLayout;
 
 use crate::vertex::Vertex2DTexture;
 
+#[derive(Debug)]
 pub struct Layout<'a> {
     pub pipeline_layout: PipelineLayout,
     pub vertex_buffer_layout: VertexBufferLayout<'a>,
@@ -56,8 +57,9 @@ impl<'a> Layout<'a> {
         let vertex_buffer_layout = wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<Vertex2DTexture>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: attrs,
+            attributes: &attrs,
         };
+        println!("shader : {}", shader_source);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some(&format!("shader: {}", name)),
