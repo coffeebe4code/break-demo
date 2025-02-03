@@ -3,40 +3,34 @@ use std::collections::HashMap;
 use wgpu::VertexAttribute;
 
 use crate::context::Context;
-use crate::description::Description;
+use crate::description::{BindGroupType, Description};
 use crate::layout::Layout;
 use crate::pass::PipelinePass;
 use crate::pipeline::Pipeline;
 use crate::texture::Texture;
 
 pub struct Scene<'a> {
+    pub context: &'a Context,
     pub textures: HashMap<String, Texture>,
     pub descriptions: HashMap<String, Description<'a>>,
     pub attributes: HashMap<String, Vec<VertexAttribute>>,
     pub passes: HashMap<String, PipelinePass<'a>>,
     pub pipelines: HashMap<String, Pipeline<'a>>,
     pub layouts: HashMap<String, Layout<'a>>,
-    pub pipeline_descriptions: HashMap<String, Vec<(String, u32)>>,
+    pub pipeline_descriptions_lookup: HashMap<String, Vec<(String, u32)>>,
 }
 
-pub struct CompiledScene<'a> {
-    pub textures: HashMap<String, Texture>,
-    pub descriptions: HashMap<String, Description<'a>>,
-    pub attributes: HashMap<String, Vec<VertexAttribute>>,
-    pub pipelines: HashMap<String, PipelinePass<'a>>,
-    pub layouts: HashMap<String, Layout<'a>>,
-}
-
-impl<'a> Scene<'a> {
-    pub fn new() -> Self {
+impl<'a, 'b: 'a> Scene<'a> {
+    pub fn new(context: &'a Context) -> Self {
         Self {
+            context,
             textures: HashMap::new(),
             descriptions: HashMap::new(),
             attributes: HashMap::new(),
             passes: HashMap::new(),
             layouts: HashMap::new(),
             pipelines: HashMap::new(),
-            pipeline_descriptions: HashMap::new(),
+            pipeline_descriptions_lookup: HashMap::new(),
         }
     }
     pub fn add_attributes(mut self, name: &str, attrs: &[VertexAttribute]) -> Self {
@@ -47,33 +41,26 @@ impl<'a> Scene<'a> {
         self.textures.insert(name.to_string(), texture);
         self
     }
-    pub fn add_layout(
-        &'a mut self,
-        name: &str,
-        device: &wgpu::Device,
-        attribute_name: &str,
-        shader_source: &'static str,
-    ) {
+    pub fn add_layout(&'b mut self, name: &str, attribute_name: &str, shader_source: &'static str) {
         let layout = Layout::new(
             &self.attributes[attribute_name],
-            device,
+            &self.context.device,
             shader_source,
             name,
         );
         self.layouts.insert(name.to_string(), layout);
     }
     pub fn add_description(
-        &'a mut self,
+        &'b mut self,
         name: &str,
-        device: &wgpu::Device,
         texture_name: &str,
-        entries: &[wgpu::BindGroupEntry],
+        entries: &[BindGroupType],
         layout_name: &str,
     ) {
-        let description = Description::new(
+        let mut description = Description::new(entries.to_vec());
+        description.update(
             &self.textures[texture_name],
-            device,
-            entries.to_vec(),
+            &self.context.device,
             &self.layouts[layout_name],
             name,
         );
@@ -82,7 +69,6 @@ impl<'a> Scene<'a> {
     pub fn compile_pipeline(
         &'a mut self,
         name: &str,
-        context: &Context,
         description_names: &[&str],
         layout_name: &str,
     ) {
@@ -90,13 +76,7 @@ impl<'a> Scene<'a> {
         for x in description_names {
             des.push(&self.descriptions[*x]);
         }
-        let pipeline = Pipeline::new(
-            &self.layouts[layout_name],
-            des,
-            &context.device,
-            name,
-            &context.config,
-        );
+        let pipeline = Pipeline::new(&self.layouts[layout_name], des, &self.context, name);
         self.pipelines.insert(name.to_string(), pipeline);
 
         let temp = &self.pipelines[name];
@@ -104,8 +84,8 @@ impl<'a> Scene<'a> {
         for (i, x) in temp.descriptions.iter().enumerate() {
             let id = pass.configure_description_buffers(
                 i as u32,
-                &context.queue,
-                &context.device,
+                &self.context.queue,
+                &self.context.device,
                 // sus
                 &vec![],
                 &vec![],

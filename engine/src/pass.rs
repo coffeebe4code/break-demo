@@ -62,8 +62,7 @@ impl<'a, 'p> PipelinePass<'a> {
     }
     pub fn update(
         &mut self,
-        queue: &wgpu::Queue,
-        device: &wgpu::Device,
+        context: &Context,
         description_id: DescriptionId,
         index_arr: &'p [u16],
         vertex_arr: &'p [Vertex],
@@ -72,25 +71,25 @@ impl<'a, 'p> PipelinePass<'a> {
         let vertex_size = (vertex_arr.len() * std::mem::size_of::<Vertex>()) as u64;
         let index_size = (index_arr.len() * std::mem::size_of::<u16>()) as u64;
         if self.vert_buffers.get(index).unwrap().size() >= vertex_size {
-            queue.write_buffer(
+            context.queue.write_buffer(
                 &self.vert_buffers.get(index as usize).unwrap(),
                 0,
                 bytemuck::cast_slice(vertex_arr),
             );
 
-            queue.write_buffer(
+            context.queue.write_buffer(
                 &self.index_buffers.get(index as usize).unwrap(),
                 0,
                 bytemuck::cast_slice(index_arr),
             );
         } else {
-            let vert_buff = device.create_buffer(&wgpu::BufferDescriptor {
+            let vert_buff = context.device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some(&format!("vert buff description id: {}", description_id)),
                 size: vertex_size,
                 usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
                 mapped_at_creation: false,
             });
-            let index_buff = device.create_buffer(&wgpu::BufferDescriptor {
+            let index_buff = context.device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some(&format!("index buff description id: {}", description_id)),
                 size: index_size,
                 usage: wgpu::BufferUsages::INDEX | wgpu::BufferUsages::COPY_DST,

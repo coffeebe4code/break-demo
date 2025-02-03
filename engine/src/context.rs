@@ -1,13 +1,13 @@
 use crate::window::Window;
 
-pub struct Context<'a> {
-    pub surface: wgpu::Surface<'a>,
+pub struct Context {
+    pub surface: wgpu::Surface<'static>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub config: wgpu::SurfaceConfiguration,
 }
 
-impl<'a> Context<'a> {
+impl Context {
     pub async fn new(window: &Window) -> Self {
         let size = window.window.inner_size();
         // The instance is a handle to our GPU
