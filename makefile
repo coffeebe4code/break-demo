@@ -2,7 +2,7 @@ WTGT=./break-wasm/pkg
 
 .PHONY: cwgame
 cwgame:
-	cargo watch -x "run --bin break-game"
+	cargo watch -x "run --bin break-game --target=x86_64-unknown-linux-gnu"
 
 .PHONY: wasm-dev
 wasm-dev:

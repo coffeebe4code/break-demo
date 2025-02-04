@@ -5,16 +5,12 @@
 - add more make commands
 
 ### Engine
-- bundle bind group with texture and pipeline
-- separate pipeline and pass for what makes most sense
-- create scene
 - load and play sound - engine based
 - load and render font - engine based
 
 ### Game
 - get more logic going
     - Determine eventing solution with pieces and game controller/board
-- convert to 2D assets, shader, and texture are 3D
 - create game controller
 - create render controller
     - pixel perfect grid solution

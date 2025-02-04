@@ -1,10 +1,14 @@
-use std::sync::Arc;
+use std::{
+    fs::{self, File},
+    io::Read,
+    sync::Arc,
+};
 
 use winit::{
     event::*,
     event_loop::EventLoop,
     keyboard::{KeyCode, PhysicalKey},
-    window::WindowBuilder,
+    window::{Icon, WindowBuilder},
 };
 
 pub enum WindowEvents {
@@ -41,9 +45,17 @@ impl Window {
                 env_logger::init();
             }
         }
+        let mut f = File::open("./assets/B.png").expect("texture not found");
+        let metadata = fs::metadata("./assets/B.png").expect("unable to read metadata");
+        let mut buffer = vec![0; metadata.len() as usize];
+        f.read(&mut buffer).expect("buffer overflow");
+        let img = image::load_from_memory(&buffer).unwrap();
         let window = WindowBuilder::new()
             .with_title("Break! Game")
-            .with_maximized(true)
+            .with_maximized(false)
+            .with_window_icon(Some(
+                Icon::from_rgba(img.to_rgb8().into_raw(), 20, 20).unwrap(),
+            ))
             .build(&event_loop)
             .unwrap();
 
