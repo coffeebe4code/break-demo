@@ -59,7 +59,6 @@ impl<'a> Layout<'a> {
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &attrs,
         };
-        println!("shader : {}", shader_source);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some(&format!("shader: {}", name)),

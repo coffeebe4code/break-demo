@@ -44,7 +44,6 @@ impl<'a> Scene<'a> {
         context: &Context,
     ) -> Self {
         let layout = Layout::new(attrs, &context.device, shader_source, name);
-        println!("layout {:#?}", layout);
         self.layouts.insert(name.to_string(), layout);
         self
     }
@@ -63,7 +62,6 @@ impl<'a> Scene<'a> {
             &self.layouts[layout_name],
             name,
         );
-        println!("description {:#?}", description);
         self.descriptions
             .insert(name.to_string(), Rc::new(description));
         self
