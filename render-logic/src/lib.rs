@@ -1,4 +1,7 @@
-use engine::{context::Context, description::BindGroupType, scene::Scene, vertex::Vertex2DTexture};
+use engine::{
+    context::Context, description::BindGroupType, layout::BindLayoutType, scene::Scene,
+    vertex::Vertex2DTexture,
+};
 use wgpu::{SurfaceError, VertexAttribute};
 
 pub struct IntroContainer<'a> {
@@ -19,6 +22,16 @@ impl<'a> IntroContainer<'a> {
                 format: wgpu::VertexFormat::Float32x2,
             },
         ];
+        const BACKGROUND: &'static [BindLayoutType] = &[];
+        const BACKGROUND_ATTRS: &'static [VertexAttribute] = &[wgpu::VertexAttribute {
+            offset: 0,
+            shader_location: 0,
+            format: wgpu::VertexFormat::Float32x2,
+        }];
+        const NORMAL_TEXTURE: &'static [BindLayoutType] = &[
+            BindLayoutType::TextureFragment,
+            BindLayoutType::SamplerFragment,
+        ];
 
         let scene = Scene::new()
             .add_texture("PowerBorder", "./assets/PowerBorder.png", context)
@@ -31,9 +44,18 @@ impl<'a> IntroContainer<'a> {
             .add_layout(
                 "standard layout",
                 ATTRIBUTES,
+                NORMAL_TEXTURE,
                 include_str!("../../assets/shader.wgsl"),
                 context,
             )
+            .add_layout(
+                "background layout",
+                BACKGROUND_ATTRS,
+                BACKGROUND,
+                include_str!("../../assets/background.wgsl"),
+                context,
+            )
+            .add_description("background", "B", &[], "background layout", context)
             .add_description(
                 "b description",
                 "B",
@@ -53,7 +75,8 @@ impl<'a> IntroContainer<'a> {
                 &["b description", "r description"],
                 "standard layout",
                 context,
-            );
+            )
+            .compile_pipeline("background", &["background"], "background layout", context);
         Self { scene }
     }
     pub fn update(

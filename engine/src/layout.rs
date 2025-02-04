@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use wgpu::BindGroupLayout;
+use wgpu::BindGroupLayoutEntry;
 use wgpu::Device;
 use wgpu::PipelineLayout;
 use wgpu::ShaderModule;
@@ -8,6 +9,12 @@ use wgpu::VertexAttribute;
 use wgpu::VertexBufferLayout;
 
 use crate::vertex::Vertex2DTexture;
+
+#[derive(Clone, PartialEq, Eq)]
+pub enum BindLayoutType {
+    SamplerFragment,
+    TextureFragment,
+}
 
 #[derive(Debug)]
 pub struct Layout<'a> {
@@ -20,31 +27,41 @@ pub struct Layout<'a> {
 impl<'a> Layout<'a> {
     pub fn new(
         attrs: &'a [VertexAttribute],
+        bind_layouts: &'a [BindLayoutType],
         device: &Device,
         shader_source: &'static str,
         name: &str,
     ) -> Self {
+        let bls: Vec<BindGroupLayoutEntry> = bind_layouts
+            .iter()
+            .enumerate()
+            .map(|(i, x)| match x {
+                BindLayoutType::TextureFragment => {
+                    return wgpu::BindGroupLayoutEntry {
+                        binding: i as u32,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: false,
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        },
+                        count: None,
+                    };
+                }
+                BindLayoutType::SamplerFragment => {
+                    return wgpu::BindGroupLayoutEntry {
+                        binding: i as u32,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        // This should match the filterable field of the
+                        // corresponding Texture entry above.
+                        ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                        count: None,
+                    };
+                }
+            })
+            .collect();
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        multisampled: false,
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                    },
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    // This should match the filterable field of the
-                    // corresponding Texture entry above.
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
+            entries: &bls,
             label: Some(&format!("bind_group_layout: {}", name)),
         });
 

@@ -4,7 +4,7 @@ use crate::{layout::Layout, texture::Texture};
 
 pub type DescriptionId = u32;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum BindGroupType {
     Sampler,
     TextureView,

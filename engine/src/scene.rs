@@ -5,7 +5,7 @@ use wgpu::VertexAttribute;
 
 use crate::context::Context;
 use crate::description::{BindGroupType, Description};
-use crate::layout::Layout;
+use crate::layout::{BindLayoutType, Layout};
 use crate::pass::PipelinePass;
 use crate::pipeline::Pipeline;
 use crate::texture::Texture;
@@ -40,10 +40,11 @@ impl<'a> Scene<'a> {
         mut self,
         name: &str,
         attrs: &'a [VertexAttribute],
+        bind_layouts: &'a [BindLayoutType],
         shader_source: &'static str,
         context: &Context,
     ) -> Self {
-        let layout = Layout::new(attrs, &context.device, shader_source, name);
+        let layout = Layout::new(attrs, bind_layouts, &context.device, shader_source, name);
         self.layouts.insert(name.to_string(), layout);
         self
     }
