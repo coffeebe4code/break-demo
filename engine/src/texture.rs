@@ -1,3 +1,8 @@
+use std::{
+    fs::{self, File},
+    io::Read,
+};
+
 use anyhow::*;
 use image::GenericImageView;
 
@@ -8,6 +13,19 @@ pub struct Texture {
 }
 
 impl Texture {
+    pub fn from_file(
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        file: &str,
+        label: &str,
+    ) -> Result<Self> {
+        let mut f = File::open(&file).expect("texture not found");
+        let metadata = fs::metadata(&file).expect("unable to read metadata");
+        let mut buffer = vec![0; metadata.len() as usize];
+        f.read(&mut buffer).expect("buffer overflow");
+
+        Texture::from_bytes(device, queue, &buffer, label)
+    }
     pub fn from_bytes(
         device: &wgpu::Device,
         queue: &wgpu::Queue,

@@ -7,8 +7,9 @@ use wgpu::ShaderModule;
 use wgpu::VertexAttribute;
 use wgpu::VertexBufferLayout;
 
-use crate::vertex::Vertex;
+use crate::vertex::Vertex2DTexture;
 
+#[derive(Debug)]
 pub struct Layout<'a> {
     pub pipeline_layout: PipelineLayout,
     pub vertex_buffer_layout: VertexBufferLayout<'a>,
@@ -21,7 +22,7 @@ impl<'a> Layout<'a> {
         attrs: &'a [VertexAttribute],
         device: &Device,
         shader_source: &'static str,
-        name: &'static str,
+        name: &str,
     ) -> Self {
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
@@ -46,6 +47,7 @@ impl<'a> Layout<'a> {
             ],
             label: Some(&format!("bind_group_layout: {}", name)),
         });
+
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some(&format!("pipeline_layout: {}", name)),
             bind_group_layouts: &[&bind_group_layout],
@@ -53,9 +55,9 @@ impl<'a> Layout<'a> {
         });
 
         let vertex_buffer_layout = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+            array_stride: std::mem::size_of::<Vertex2DTexture>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: attrs,
+            attributes: &attrs,
         };
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
