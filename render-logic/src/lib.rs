@@ -41,7 +41,19 @@ impl<'a> IntroContainer<'a> {
                 "standard layout",
                 context,
             )
-            .compile_pipeline("intro", &["b description"], "standard layout", context);
+            .add_description(
+                "r description",
+                "R",
+                &[BindGroupType::TextureView, BindGroupType::Sampler],
+                "standard layout",
+                context,
+            )
+            .compile_pipeline(
+                "intro",
+                &["b description", "r description"],
+                "standard layout",
+                context,
+            );
         Self { scene }
     }
     pub fn update(
