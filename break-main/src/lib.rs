@@ -33,7 +33,9 @@ pub async fn main_work() -> () {
             context.resize(width, height);
             window.request_redraw();
         }
-        WindowEvents::Draw => container.render("intro", &context).unwrap(),
+        WindowEvents::Draw => {
+            container.render(&["intro"], &context).unwrap();
+        }
         _ => {}
     });
 }

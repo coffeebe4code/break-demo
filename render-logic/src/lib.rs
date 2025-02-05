@@ -22,12 +22,6 @@ impl<'a> IntroContainer<'a> {
                 format: wgpu::VertexFormat::Float32x2,
             },
         ];
-        const BACKGROUND: &'static [BindLayoutType] = &[];
-        const BACKGROUND_ATTRS: &'static [VertexAttribute] = &[wgpu::VertexAttribute {
-            offset: 0,
-            shader_location: 0,
-            format: wgpu::VertexFormat::Float32x2,
-        }];
         const NORMAL_TEXTURE: &'static [BindLayoutType] = &[
             BindLayoutType::TextureFragment,
             BindLayoutType::SamplerFragment,
@@ -48,14 +42,6 @@ impl<'a> IntroContainer<'a> {
                 include_str!("../../assets/shader.wgsl"),
                 context,
             )
-            .add_layout(
-                "background layout",
-                BACKGROUND_ATTRS,
-                BACKGROUND,
-                include_str!("../../assets/background.wgsl"),
-                context,
-            )
-            .add_description("background", "B", &[], "background layout", context)
             .add_description(
                 "b description",
                 "B",
@@ -75,8 +61,7 @@ impl<'a> IntroContainer<'a> {
                 &["b description", "r description"],
                 "standard layout",
                 context,
-            )
-            .compile_pipeline("background", &["background"], "background layout", context);
+            );
         Self { scene }
     }
     pub fn update(
@@ -90,7 +75,7 @@ impl<'a> IntroContainer<'a> {
         self.scene
             .update(pipeline_name, description, ibuf, vbuf, context);
     }
-    pub fn render(&self, pipeline_name: &str, context: &Context) -> Result<(), SurfaceError> {
-        self.scene.passes[pipeline_name].render(context)
+    pub fn render(&self, pipeline_names: &[&str], context: &Context) -> Result<(), SurfaceError> {
+        self.scene.render(pipeline_names, context)
     }
 }

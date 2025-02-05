@@ -90,6 +90,9 @@ impl Window {
     pub fn run(&self, event_loop: EventLoop<()>, mut callback: impl FnMut(WindowEvents) -> ()) {
         event_loop
             .run(|event, control_flow| match event {
+                Event::AboutToWait => {
+                    self.window.request_redraw();
+                }
                 Event::WindowEvent {
                     ref event,
                     window_id,

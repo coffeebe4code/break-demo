@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use wgpu::RenderPass;
 
 use crate::context::Context;
 use crate::pipeline::Pipeline;
@@ -89,56 +90,17 @@ impl<'a> PipelinePass {
             bytemuck::cast_slice(index_arr),
         );
     }
-    pub fn render(&self, context: &'a Context) -> Result<(), wgpu::SurfaceError> {
-        let output = context.surface.get_current_texture()?;
-        let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
-        let mut encoder = context
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render Encoder"),
-            });
-        {
-            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("WG Pass"),
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.0,
-                            g: 0.0,
-                            b: 0.0,
-                            a: 1.0,
-                        }),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-                occlusion_query_set: None,
-                timestamp_writes: None,
-            });
-            render_pass.set_pipeline(&self.pipeline.pipeline);
-            for (idx, id) in self.pipeline.descriptions.iter().enumerate() {
-                render_pass.set_vertex_buffer(0, self.vert_buffers.get(idx).unwrap().slice(..));
-                render_pass.set_index_buffer(
-                    self.index_buffers.get(idx).unwrap().slice(..),
-                    wgpu::IndexFormat::Uint16,
-                );
-                render_pass.set_bind_group(
-                    0,
-                    &self.pipeline.descriptions[idx].diffuse_bind_group,
-                    &[],
-                );
-                let index_len = (self.index_buffers[idx].size() >> 1) as u32;
-                render_pass.draw_indexed(0..index_len, 0, 0..1);
-            }
+    pub fn render(&self, render_pass: &mut RenderPass) {
+        render_pass.set_pipeline(&self.pipeline.pipeline);
+        for (idx, id) in self.pipeline.descriptions.iter().enumerate() {
+            render_pass.set_vertex_buffer(0, self.vert_buffers.get(idx).unwrap().slice(..));
+            render_pass.set_index_buffer(
+                self.index_buffers.get(idx).unwrap().slice(..),
+                wgpu::IndexFormat::Uint16,
+            );
+            render_pass.set_bind_group(0, &self.pipeline.descriptions[idx].diffuse_bind_group, &[]);
+            let index_len = (self.index_buffers[idx].size() >> 1) as u32;
+            render_pass.draw_indexed(0..index_len, 0, 0..1);
         }
-
-        context.queue.submit(std::iter::once(encoder.finish()));
-        output.present();
-
-        Ok(())
     }
 }
