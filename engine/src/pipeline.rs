@@ -1,6 +1,7 @@
-use std::rc::Rc;
+use wgpu::BindGroupLayout;
 
 use crate::{context::Context, description::Description, layout::Layout};
+use std::rc::Rc;
 
 pub struct Pipeline {
     pub pipeline: wgpu::RenderPipeline,
@@ -14,11 +15,20 @@ impl Pipeline {
         context: &Context,
         name: &str,
     ) -> Self {
+        let groups: Vec<&BindGroupLayout> = layout.bind_group_layouts.iter().collect();
+        let pipeline_layout =
+            context
+                .device
+                .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                    label: Some(&format!("pipeline_layout: {}", name)),
+                    bind_group_layouts: &groups,
+                    push_constant_ranges: &[],
+                });
         let pipeline = context
             .device
             .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
                 label: Some(&format!("pipeline: {}", name)),
-                layout: Some(&layout.pipeline_layout),
+                layout: Some(&pipeline_layout),
                 vertex: wgpu::VertexState {
                     module: &layout.shader,
                     entry_point: Some("vs_main"),

@@ -1,7 +1,5 @@
+use crate::layout::Layout;
 use wgpu::BindGroupEntry;
-
-use crate::{layout::Layout, texture::Texture};
-
 pub type DescriptionId = u32;
 
 #[derive(Clone, PartialEq, Eq)]
@@ -12,41 +10,27 @@ pub enum BindGroupType {
 
 #[derive(Debug)]
 pub struct Description {
-    pub diffuse_bind_group: wgpu::BindGroup,
+    pub diffuse_bind_groups: Vec<wgpu::BindGroup>,
 }
 
 impl Description {
     pub fn new(
-        texture: &Texture,
-        entries: &[BindGroupType],
+        entries: &[&[BindGroupEntry]],
         device: &wgpu::Device,
         layout: &Layout,
         name: &str,
     ) -> Self {
-        let bgs: Vec<BindGroupEntry> = entries
-            .iter()
-            .enumerate()
-            .map(|(i, x)| match x {
-                BindGroupType::TextureView => {
-                    return wgpu::BindGroupEntry {
-                        binding: i as u32,
-                        resource: wgpu::BindingResource::TextureView(&texture.view),
-                    }
-                }
-                BindGroupType::Sampler => {
-                    return wgpu::BindGroupEntry {
-                        binding: i as u32,
-                        resource: wgpu::BindingResource::Sampler(&texture.sampler),
-                    }
-                }
-            })
-            .collect();
-
-        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &layout.bind_group_layout,
-            entries: &bgs,
-            label: Some(&format!("diffuse_bind_group: {}", name)),
-        });
-        Self { diffuse_bind_group }
+        let mut diffuse_bind_groups = vec![];
+        for (i, x) in layout.bind_group_layouts.iter().enumerate() {
+            let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &x,
+                entries: &entries[i],
+                label: Some(&format!("diffuse_bind_group: {} : {}", name, i)),
+            });
+            diffuse_bind_groups.push(diffuse_bind_group)
+        }
+        Self {
+            diffuse_bind_groups,
+        }
     }
 }

@@ -1,26 +1,26 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use wgpu::VertexAttribute;
+use wgpu::{BindGroupEntry, BindGroupLayoutEntry, VertexAttribute};
 
 use crate::context::Context;
 use crate::description::{BindGroupType, Description};
-use crate::layout::{BindLayoutType, Layout};
+use crate::layout::Layout;
 use crate::pass::PipelinePass;
 use crate::pipeline::Pipeline;
 use crate::texture::Texture;
 use crate::vertex::Vertex2DTexture;
 
-pub struct Scene<'a> {
+pub struct Scene {
     pub textures: HashMap<String, Texture>,
     pub descriptions: HashMap<String, Rc<Description>>,
     pub passes: HashMap<String, PipelinePass>,
     pub pipelines: HashMap<String, Rc<Pipeline>>,
-    pub layouts: HashMap<String, Layout<'a>>,
+    pub layouts: HashMap<String, Layout>,
     pub lookups: HashMap<String, Vec<String>>,
 }
 
-impl<'a> Scene<'a> {
+impl Scene {
     pub fn new() -> Self {
         Self {
             textures: HashMap::new(),
@@ -39,30 +39,44 @@ impl<'a> Scene<'a> {
     pub fn add_layout(
         mut self,
         name: &str,
-        attrs: &'a [VertexAttribute],
-        bind_layouts: &'a [BindLayoutType],
+        attrs: &'static [VertexAttribute],
+        bind_layouts: &[&'static [BindGroupLayoutEntry]],
         shader_source: &'static str,
         context: &Context,
+        size: usize,
     ) -> Self {
-        let layout = Layout::new(attrs, bind_layouts, &context.device, shader_source, name);
+        let layout = Layout::new(
+            attrs,
+            bind_layouts,
+            &context.device,
+            shader_source,
+            name,
+            size,
+        );
         self.layouts.insert(name.to_string(), layout);
         self
     }
-    pub fn add_description(
+    pub fn add_texture_description(
         mut self,
         name: &str,
         texture_name: &str,
-        entries: &[BindGroupType],
         layout_name: &str,
         context: &Context,
     ) -> Self {
-        let description = Description::new(
-            &self.textures[texture_name],
-            entries,
-            &context.device,
-            &self.layouts[layout_name],
-            name,
-        );
+        let temp = &self.textures[texture_name];
+        let bges = &[
+            wgpu::BindGroupEntry {
+                binding: 0 as u32,
+                resource: wgpu::BindingResource::TextureView(&temp.view),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1 as u32,
+                resource: wgpu::BindingResource::Sampler(&temp.sampler),
+            },
+        ];
+
+        let description =
+            Description::new(&[bges], &context.device, &self.layouts[layout_name], name);
         self.descriptions
             .insert(name.to_string(), Rc::new(description));
         self

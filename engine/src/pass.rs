@@ -98,7 +98,13 @@ impl<'a> PipelinePass {
                 self.index_buffers.get(idx).unwrap().slice(..),
                 wgpu::IndexFormat::Uint16,
             );
-            render_pass.set_bind_group(0, &self.pipeline.descriptions[idx].diffuse_bind_group, &[]);
+            for (bgid, bg) in self.pipeline.descriptions[idx]
+                .diffuse_bind_groups
+                .iter()
+                .enumerate()
+            {
+                render_pass.set_bind_group(bgid as u32, bg, &[]);
+            }
             let index_len = (self.index_buffers[idx].size() >> 1) as u32;
             render_pass.draw_indexed(0..index_len, 0, 0..1);
         }

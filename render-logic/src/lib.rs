@@ -1,14 +1,11 @@
-use engine::{
-    context::Context, description::BindGroupType, layout::BindLayoutType, scene::Scene,
-    vertex::Vertex2DTexture,
-};
-use wgpu::{SurfaceError, VertexAttribute};
+use engine::{context::Context, layout::LayoutSize, scene::Scene, vertex::Vertex2DTexture};
+use wgpu::{BindGroupLayoutEntry, SurfaceError, VertexAttribute};
 
-pub struct IntroContainer<'a> {
-    pub scene: Scene<'a>,
+pub struct IntroContainer {
+    pub scene: Scene,
 }
 
-impl<'a> IntroContainer<'a> {
+impl IntroContainer {
     pub fn new(context: &Context) -> Self {
         const ATTRIBUTES: &'static [VertexAttribute] = &[
             wgpu::VertexAttribute {
@@ -22,9 +19,26 @@ impl<'a> IntroContainer<'a> {
                 format: wgpu::VertexFormat::Float32x2,
             },
         ];
-        const NORMAL_TEXTURE: &'static [BindLayoutType] = &[
-            BindLayoutType::TextureFragment,
-            BindLayoutType::SamplerFragment,
+
+        const TEXTURE_LAYOUT_ENTRY: &'static [BindGroupLayoutEntry] = &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                // This should match the filterable field of the
+                // corresponding Texture entry above.
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
         ];
 
         let scene = Scene::new()
@@ -38,24 +52,13 @@ impl<'a> IntroContainer<'a> {
             .add_layout(
                 "standard layout",
                 ATTRIBUTES,
-                NORMAL_TEXTURE,
+                &[TEXTURE_LAYOUT_ENTRY],
                 include_str!("../../assets/shader.wgsl"),
                 context,
+                Vertex2DTexture::size(),
             )
-            .add_description(
-                "b description",
-                "B",
-                &[BindGroupType::TextureView, BindGroupType::Sampler],
-                "standard layout",
-                context,
-            )
-            .add_description(
-                "r description",
-                "R",
-                &[BindGroupType::TextureView, BindGroupType::Sampler],
-                "standard layout",
-                context,
-            )
+            .add_texture_description("b description", "B", "standard layout", context)
+            .add_texture_description("r description", "R", "standard layout", context)
             .compile_pipeline(
                 "intro",
                 &["b description", "r description"],
