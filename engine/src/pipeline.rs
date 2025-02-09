@@ -1,20 +1,13 @@
 use wgpu::BindGroupLayout;
 
-use crate::{context::Context, description::Description, layout::Layout};
-use std::rc::Rc;
+use crate::{context::Context, layout::Layout};
 
 pub struct Pipeline {
     pub pipeline: wgpu::RenderPipeline,
-    pub descriptions: Vec<Rc<Description>>,
 }
 
 impl Pipeline {
-    pub fn new(
-        layout: &Layout,
-        descriptions: Vec<Rc<Description>>,
-        context: &Context,
-        name: &str,
-    ) -> Self {
+    pub fn new(layout: &Layout, context: &Context, name: &str) -> Self {
         let groups: Vec<&BindGroupLayout> = layout.bind_group_layouts.iter().collect();
         let pipeline_layout =
             context
@@ -66,9 +59,6 @@ impl Pipeline {
                 multiview: None,
                 cache: None,
             });
-        Self {
-            pipeline,
-            descriptions,
-        }
+        Self { pipeline }
     }
 }

@@ -1,19 +1,22 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use wgpu::{BindGroupEntry, BindGroupLayoutEntry, VertexAttribute};
+use bytemuck::AnyBitPattern;
+use bytemuck::NoUninit;
+use wgpu::{BindGroupLayoutEntry, VertexAttribute};
 
 use crate::context::Context;
-use crate::description::{BindGroupType, Description};
+use crate::description::Descriptions;
+use crate::description::TextureDescription;
 use crate::layout::Layout;
 use crate::pass::PipelinePass;
 use crate::pipeline::Pipeline;
 use crate::texture::Texture;
-use crate::vertex::Vertex2DTexture;
 
 pub struct Scene {
     pub textures: HashMap<String, Texture>,
-    pub descriptions: HashMap<String, Rc<Description>>,
+    pub descriptions: HashMap<String, Rc<RefCell<Box<dyn Descriptions>>>>,
     pub passes: HashMap<String, PipelinePass>,
     pub pipelines: HashMap<String, Rc<Pipeline>>,
     pub layouts: HashMap<String, Layout>,
@@ -76,11 +79,21 @@ impl Scene {
         ];
 
         let description =
-            Description::new(&[bges], &context.device, &self.layouts[layout_name], name);
-        self.descriptions
-            .insert(name.to_string(), Rc::new(description));
+            TextureDescription::new(&[bges], &context.device, &self.layouts[layout_name], name);
+        self.descriptions.insert(
+            name.to_string(),
+            Rc::new(RefCell::new(Box::new(description))),
+        );
         self
     }
+    pub fn add_description(mut self, name: &str, description: impl Descriptions + 'static) -> Self {
+        self.descriptions.insert(
+            name.to_string(),
+            Rc::new(RefCell::new(Box::new(description))),
+        );
+        self
+    }
+    // figure out vertex buffer, how I want to store it, size etc.
     pub fn compile_pipeline(
         mut self,
         name: &str,
@@ -92,23 +105,40 @@ impl Scene {
         for x in description_names {
             des.push(self.descriptions[*x].clone());
         }
-        let pipeline = Pipeline::new(&self.layouts[layout_name], des, &context, name);
+        let pipeline = Pipeline::new(&self.layouts[layout_name], &context, name);
         self.pipelines.insert(name.to_string(), Rc::new(pipeline));
 
         let mut pass = PipelinePass::new(self.pipelines[name].clone());
-        pass.configure_description_buffers(&context.queue, &context.device);
+        pass.add_desc(des);
         self.passes.insert(name.to_string(), pass);
         let vec: Vec<String> = description_names.iter().map(|x| x.to_string()).collect();
         self.lookups.insert(name.to_string(), vec);
         self
     }
+    pub fn update_verticies<T>(&mut self, pass_name: &str, context: &Context, vertices: &[T])
+    where
+        T: NoUninit + AnyBitPattern,
+    {
+        let vert_buffer = context.device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some(&format!("vertex buffer: {}", pass_name)),
+            size: (vertices.len() * std::mem::size_of::<T>()) as u64,
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let temp = self.passes.get_mut(pass_name).unwrap();
+        temp.vert_buffer = Some(vert_buffer);
+        context.queue.write_buffer(
+            &temp.vert_buffer.as_ref().unwrap(),
+            0,
+            bytemuck::cast_slice(vertices),
+        );
+    }
     pub fn update(
         &mut self,
         pass_name: &str,
         description_name: &str,
-        index_arr: &[u16],
-        vertex_arr: &[Vertex2DTexture],
         context: &Context,
+        func: &mut dyn FnMut(&Context, &mut dyn Descriptions) -> (),
     ) {
         let mut idx = 0;
         for (i, x) in self.lookups[pass_name].iter().enumerate() {
@@ -119,7 +149,7 @@ impl Scene {
         self.passes
             .get_mut(pass_name)
             .unwrap()
-            .update(&context, idx as u32, index_arr, vertex_arr);
+            .update(&context, idx as u32, func);
     }
     pub fn render(
         &self,

@@ -1,5 +1,10 @@
-use engine::{context::Context, layout::LayoutSize, scene::Scene, vertex::Vertex2DTexture};
-use wgpu::{BindGroupLayoutEntry, SurfaceError, VertexAttribute};
+use engine::{
+    context::Context,
+    layout::LayoutSize,
+    scene::Scene,
+    vertex::{Vertex2D, Vertex2DTexture},
+};
+use wgpu::{BindGroupLayoutEntry, VertexAttribute};
 
 pub struct IntroContainer {
     pub scene: Scene,
@@ -7,6 +12,11 @@ pub struct IntroContainer {
 
 impl IntroContainer {
     pub fn new(context: &Context) -> Self {
+        const BACKGROUND_ATTRIBUTES: &'static [VertexAttribute] = &[wgpu::VertexAttribute {
+            offset: 0,
+            shader_location: 0,
+            format: wgpu::VertexFormat::Float32x2,
+        }];
         const ATTRIBUTES: &'static [VertexAttribute] = &[
             wgpu::VertexAttribute {
                 offset: 0,
@@ -50,6 +60,14 @@ impl IntroContainer {
             .add_texture("K", "./assets/K.png", context)
             .add_texture("I", "./assets/I.png", context)
             .add_layout(
+                "background layout",
+                BACKGROUND_ATTRIBUTES,
+                &[],
+                include_str!("../../assets/shader.wgsl"),
+                context,
+                Vertex2D::size(),
+            )
+            .add_layout(
                 "standard layout",
                 ATTRIBUTES,
                 &[TEXTURE_LAYOUT_ENTRY],
@@ -67,18 +85,7 @@ impl IntroContainer {
             );
         Self { scene }
     }
-    pub fn update(
-        &mut self,
-        pipeline_name: &str,
-        description: &str,
-        vbuf: &[Vertex2DTexture],
-        ibuf: &[u16],
-        context: &Context,
-    ) {
-        self.scene
-            .update(pipeline_name, description, ibuf, vbuf, context);
-    }
-    pub fn render(&self, pipeline_names: &[&str], context: &Context) -> Result<(), SurfaceError> {
-        self.scene.render(pipeline_names, context)
-    }
+    //pub fn render(&self, pipeline_names: &[&str], context: &Context) -> Result<(), SurfaceError> {
+    //    self.scene.render(pipeline_names, context)
+    //}
 }
