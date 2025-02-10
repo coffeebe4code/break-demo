@@ -3,6 +3,7 @@
     - module and data driven loader
 - switch to node to serve solution
 - add more make commands
+- load textures via wasm rather than file::open in wasm
 
 ### Engine
 - load and play sound - engine based

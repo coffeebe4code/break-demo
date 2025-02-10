@@ -9,6 +9,7 @@ use wgpu::{BindGroupLayoutEntry, VertexAttribute};
 use crate::context::Context;
 use crate::description::Descriptions;
 use crate::description::TextureDescription;
+use crate::font::Font;
 use crate::layout::Layout;
 use crate::pass::PipelinePass;
 use crate::pipeline::Pipeline;
@@ -79,10 +80,24 @@ impl Scene {
         ];
 
         let description =
-            TextureDescription::new(&[bges], &context.device, &self.layouts[layout_name], name);
+            TextureDescription::new(&[bges], &context, &self.layouts[layout_name], name);
         self.descriptions.insert(
             name.to_string(),
             Rc::new(RefCell::new(Box::new(description))),
+        );
+        self
+    }
+    pub fn add_font_desc(
+        mut self,
+        context: &Context,
+        description_name: &str,
+        layout_name: &str,
+        text: &str,
+    ) -> Self {
+        let font = Font::new(&[], context, &self.layouts[layout_name], text);
+        self.descriptions.insert(
+            description_name.to_string(),
+            Rc::new(RefCell::new(Box::new(font))),
         );
         self
     }

@@ -4,12 +4,7 @@ use crate::{context::Context, layout::Layout};
 use wgpu::{BindGroupEntry, RenderPass};
 
 pub trait Descriptions {
-    fn new(
-        entries: &[&[BindGroupEntry]],
-        device: &wgpu::Device,
-        layout: &Layout,
-        name: &str,
-    ) -> Self
+    fn new(entries: &[&[BindGroupEntry]], context: &Context, layout: &Layout, name: &str) -> Self
     where
         Self: Sized;
     fn render(&self, render_pass: &mut RenderPass) -> ();
@@ -29,19 +24,16 @@ pub struct TextureDescription {
 }
 
 impl Descriptions for TextureDescription {
-    fn new(
-        entries: &[&[BindGroupEntry]],
-        device: &wgpu::Device,
-        layout: &Layout,
-        name: &str,
-    ) -> Self {
+    fn new(entries: &[&[BindGroupEntry]], context: &Context, layout: &Layout, name: &str) -> Self {
         let mut diffuse_bind_groups = vec![];
         for (i, x) in layout.bind_group_layouts.iter().enumerate() {
-            let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-                layout: &x,
-                entries: &entries[i],
-                label: Some(&format!("diffuse_bind_group: {} : {}", name, i)),
-            });
+            let diffuse_bind_group = context
+                .device
+                .create_bind_group(&wgpu::BindGroupDescriptor {
+                    layout: &x,
+                    entries: &entries[i],
+                    label: Some(&format!("diffuse_bind_group: {} : {}", name, i)),
+                });
             diffuse_bind_groups.push(diffuse_bind_group)
         }
         Self {

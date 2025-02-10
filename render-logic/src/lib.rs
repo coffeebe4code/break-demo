@@ -15,7 +15,7 @@ pub struct Background {
 impl Descriptions for Background {
     fn new(
         _entries: &[&[wgpu::BindGroupEntry]],
-        _device: &wgpu::Device,
+        _context: &Context,
         _layout: &engine::layout::Layout,
         _name: &str,
     ) -> Self
@@ -97,6 +97,7 @@ impl IntroContainer {
             )
             .add_texture_description("b", "B", "standard layout", context)
             .add_texture_description("r", "R", "standard layout", context)
+            .add_font_desc(&context, "font", "standard layout", "hello")
             .compile_pipeline("intro", &["b", "r"], "standard layout", context)
             .add_layout(
                 "background layout",
@@ -108,7 +109,7 @@ impl IntroContainer {
             )
             .add_description("background", Background {})
             .compile_pipeline("background", &["background"], "background layout", context)
-            .compile_pipeline("intro", &["b", "r"], "standard layout", context);
+            .compile_pipeline("intro", &["b", "r", "font"], "standard layout", context);
         Self { scene }
     }
 }
