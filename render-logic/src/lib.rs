@@ -26,7 +26,7 @@ impl Descriptions for Background {
     }
 
     fn render(&self, render_pass: &mut wgpu::RenderPass) -> () {
-        render_pass.draw(0..3, 0..2);
+        render_pass.draw(0..6, 0..1);
     }
 
     fn as_any(&mut self) -> &mut dyn std::any::Any {

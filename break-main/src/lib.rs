@@ -17,8 +17,10 @@ pub async fn main_work() -> () {
     let verts = vec![
         vertex2d([-1.0, 1.0]),
         vertex2d([1.0, 1.0]),
-        vertex2d([-1.0, -1.0]),
         vertex2d([1.0, -1.0]),
+        vertex2d([1.0, -1.0]),
+        vertex2d([-1.0, -1.0]),
+        vertex2d([-1.0, 1.0]),
     ];
     let indices_b = &[0, 1, 2, 2, 3, 0];
     let b = vec![
@@ -26,10 +28,10 @@ pub async fn main_work() -> () {
         vertex2dtexture([0.15, 0.0], [1, 1]),
         vertex2dtexture([0.15, 0.15], [1, 0]),
         vertex2dtexture([0.0, 0.15], [0, 0]),
-        vertex2dtexture([0.15, 0.15], [0, 1]),
-        vertex2dtexture([0.30, 0.15], [1, 1]),
-        vertex2dtexture([0.30, 0.30], [1, 0]),
-        vertex2dtexture([0.15, 0.30], [0, 0]),
+        vertex2dtexture([0.15, 0.0], [0, 1]),
+        vertex2dtexture([0.30, 0.0], [1, 1]),
+        vertex2dtexture([0.30, 0.15], [1, 0]),
+        vertex2dtexture([0.15, 0.15], [0, 0]),
     ];
     let indices_r = &[4, 5, 6, 6, 7, 4];
     intro.scene.update_verticies("intro", &context, &b);
