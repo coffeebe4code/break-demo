@@ -6,6 +6,34 @@ use engine::{
 };
 use wgpu::{BindGroupLayoutEntry, VertexAttribute};
 
+use engine::description::*;
+
+pub struct Background {
+    //pub index_buffer: Option<wgpu::Buffer>,
+}
+
+impl Descriptions for Background {
+    fn new(
+        _entries: &[&[wgpu::BindGroupEntry]],
+        _device: &wgpu::Device,
+        _layout: &engine::layout::Layout,
+        _name: &str,
+    ) -> Self
+    where
+        Self: Sized,
+    {
+        return Self {};
+    }
+
+    fn render(&self, render_pass: &mut wgpu::RenderPass) -> () {
+        render_pass.draw(0..3, 0..2);
+    }
+
+    fn as_any(&mut self) -> &mut dyn std::any::Any {
+        self
+    }
+}
+
 pub struct IntroContainer {
     pub scene: Scene,
 }
@@ -60,14 +88,6 @@ impl IntroContainer {
             .add_texture("K", "./assets/K.png", context)
             .add_texture("I", "./assets/I.png", context)
             .add_layout(
-                "background layout",
-                BACKGROUND_ATTRIBUTES,
-                &[],
-                include_str!("../../assets/shader.wgsl"),
-                context,
-                Vertex2D::size(),
-            )
-            .add_layout(
                 "standard layout",
                 ATTRIBUTES,
                 &[TEXTURE_LAYOUT_ENTRY],
@@ -75,17 +95,20 @@ impl IntroContainer {
                 context,
                 Vertex2DTexture::size(),
             )
-            .add_texture_description("b description", "B", "standard layout", context)
-            .add_texture_description("r description", "R", "standard layout", context)
-            .compile_pipeline(
-                "intro",
-                &["b description", "r description"],
-                "standard layout",
+            .add_texture_description("b", "B", "standard layout", context)
+            .add_texture_description("r", "R", "standard layout", context)
+            .compile_pipeline("intro", &["b", "r"], "standard layout", context)
+            .add_layout(
+                "background layout",
+                BACKGROUND_ATTRIBUTES,
+                &[],
+                include_str!("../../assets/background.wgsl"),
                 context,
-            );
+                Vertex2D::size(),
+            )
+            .add_description("background", Background {})
+            .compile_pipeline("background", &["background"], "background layout", context)
+            .compile_pipeline("intro", &["b", "r"], "standard layout", context);
         Self { scene }
     }
-    //pub fn render(&self, pipeline_names: &[&str], context: &Context) -> Result<(), SurfaceError> {
-    //    self.scene.render(pipeline_names, context)
-    //}
 }
