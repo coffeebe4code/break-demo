@@ -97,8 +97,6 @@ impl IntroContainer {
             )
             .add_texture_description("b", "B", "standard layout", context)
             .add_texture_description("r", "R", "standard layout", context)
-            .add_font_desc(&context, "font", "standard layout", "hello")
-            .compile_pipeline("intro", &["b", "r"], "standard layout", context)
             .add_layout(
                 "background layout",
                 BACKGROUND_ATTRIBUTES,
@@ -107,9 +105,15 @@ impl IntroContainer {
                 context,
                 Vertex2D::size(),
             )
+            .add_font_desc(&context, "font", "background layout", &"hello,asdfasdfasdfasdfasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
             .add_description("background", Background {})
-            .compile_pipeline("background", &["background"], "background layout", context)
-            .compile_pipeline("intro", &["b", "r", "font"], "standard layout", context);
+            .compile_pipeline(
+                "background",
+                &["background", "font"],
+                "background layout",
+                context,
+            )
+            .compile_pipeline("intro", &["b", "r"], "standard layout", context);
         Self { scene }
     }
 }

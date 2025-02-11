@@ -67,6 +67,7 @@ pub async fn main_work() -> () {
                 .scene
                 .render(&["background", "intro"], &context)
                 .unwrap();
+            window.request_redraw();
         }
         _ => {}
     });

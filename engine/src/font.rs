@@ -22,7 +22,7 @@ impl Descriptions for Font {
         let mut font_system = FontSystem::new();
         let mut swash_cache = SwashCache::new();
         let cache = Cache::new(&context.device);
-        let viewport = Viewport::new(&context.device, &cache);
+        let mut viewport = Viewport::new(&context.device, &cache);
         let mut atlas = TextAtlas::new(
             &context.device,
             &context.queue,
@@ -48,11 +48,18 @@ impl Descriptions for Font {
         text_buffer.set_text(
             &mut font_system,
             name,
-            Attrs::new().family(Family::Monospace),
+            Attrs::new().family(Family::SansSerif),
             Shaping::Advanced,
         );
 
         text_buffer.shape_until_scroll(&mut font_system, false);
+        viewport.update(
+            &context.queue,
+            Resolution {
+                width: context.config.width,
+                height: context.config.height,
+            },
+        );
         text_renderer
             .prepare(
                 &context.device,
@@ -66,10 +73,10 @@ impl Descriptions for Font {
                     top: 10.0,
                     scale: 1.0,
                     bounds: TextBounds {
-                        left: 0,
-                        top: 0,
-                        right: 600,
-                        bottom: 160,
+                        left: 50,
+                        top: (context.config.height / 2) as i32 + 50,
+                        right: context.config.width as i32 - 100,
+                        bottom: context.config.width as i32 - 100,
                     },
                     default_color: Color::rgb(255, 255, 255),
                     custom_glyphs: &[],
