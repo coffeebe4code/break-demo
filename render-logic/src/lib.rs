@@ -105,8 +105,8 @@ impl IntroContainer {
                 context,
                 Vertex2D::size(),
             )
-            .add_font_desc(&context, "font", "background layout", &"hello,asdfasdfasdfasdfasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
             .add_description("background", Background {})
+            .add_font_desc(&context, "font", "background layout", &"hello,asdfasdfasdfasdfasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffALKFJLAKJSDFLKAJSFLKJALSKFJALKSJFLKAJSFLKAJSFLKAJSFLKAJSFLKJASLKFJALSKJFLAKJSFLKASJFLKAJSFLKAJSFLKAJSF:LKJASKFJ")
             .compile_pipeline(
                 "background",
                 &["background", "font"],

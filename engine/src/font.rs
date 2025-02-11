@@ -96,6 +96,7 @@ impl Descriptions for Font {
     }
 
     fn render(&self, render_pass: &mut wgpu::RenderPass) -> () {
+        println!("definitely calling text renderer");
         self.text_renderer
             .render(&self.atlas, &self.viewport, render_pass)
             .unwrap();

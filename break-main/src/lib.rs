@@ -2,9 +2,11 @@ use engine::{
     buffers::index_buffer,
     context::Context,
     description::TextureDescription,
+    font::Font,
     vertex::{vertex2d, vertex2dtexture},
     window::{Window, WindowEvents},
 };
+use glyphon::{Attrs, Family, Resolution, Shaping};
 use render_logic::IntroContainer;
 use winit::event_loop::EventLoop;
 
@@ -60,6 +62,34 @@ pub async fn main_work() -> () {
     window.run(event_loop, |event| match event {
         WindowEvents::Resized { width, height } => {
             context.resize(width, height);
+            intro
+                .scene
+                .update("background", "font", &context, &mut |c, d| {
+                    let desc: &mut Font = d.as_any().downcast_mut::<Font>().unwrap();
+
+                    let physical_width = (c.config.width as f64) as f32;
+                    let physical_height = (c.config.height as f64) as f32;
+
+                    desc.text_buffer.set_size(
+                        &mut desc.font_system,
+                        Some(physical_width),
+                        Some(physical_height),
+                    );
+
+                    desc.text_buffer.set_text(
+                        &mut desc.font_system,
+                        "HELLO THERE, THIS IS THE UPDATED ONE",
+                        Attrs::new().family(Family::SansSerif),
+                        Shaping::Advanced,
+                    );
+                    desc.viewport.update(
+                        &context.queue,
+                        Resolution {
+                            width: context.config.width,
+                            height: context.config.height,
+                        },
+                    );
+                });
             window.request_redraw();
         }
         WindowEvents::Draw => {
