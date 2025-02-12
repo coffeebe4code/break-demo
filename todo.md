@@ -7,7 +7,8 @@
 
 ### Engine
 - load and play sound - engine based
-- load and render font - engine based
+- make it so that the main game logic doesn't need wgpu or other imports, just engine and render-logic
+- make it so that render logic code only needs wgpu at the most 
 
 ### Game
 - get more logic going

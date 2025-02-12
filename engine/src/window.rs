@@ -32,7 +32,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(event_loop: &EventLoop<()>) -> Self {
+    pub fn new(event_loop: &EventLoop<()>, title: &str) -> Self {
         cfg_if::cfg_if! {
             if #[cfg(target_arch = "wasm32")] {
                 std::panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -42,7 +42,7 @@ impl Window {
             }
         }
         let window = WindowBuilder::new()
-            .with_title("Break! Game")
+            .with_title(title)
             .with_maximized(false)
             .build(&event_loop)
             .unwrap();

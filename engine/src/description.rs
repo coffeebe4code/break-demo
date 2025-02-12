@@ -1,12 +1,9 @@
 use std::any::Any;
 
-use crate::{context::Context, layout::Layout};
+use crate::{buffers::index_buffer, context::Context, layout::Layout};
 use wgpu::{BindGroupEntry, RenderPass};
 
 pub trait Descriptions {
-    fn new(entries: &[&[BindGroupEntry]], context: &Context, layout: &Layout, name: &str) -> Self
-    where
-        Self: Sized;
     fn render(&self, render_pass: &mut RenderPass) -> ();
     fn as_any(&mut self) -> &mut dyn Any;
 }
@@ -22,9 +19,13 @@ pub struct TextureDescription {
     pub diffuse_bind_groups: Vec<wgpu::BindGroup>,
     pub index_buffer: Option<wgpu::Buffer>,
 }
-
-impl Descriptions for TextureDescription {
-    fn new(entries: &[&[BindGroupEntry]], context: &Context, layout: &Layout, name: &str) -> Self {
+impl TextureDescription {
+    pub fn new(
+        entries: &[&[BindGroupEntry]],
+        context: &Context,
+        layout: &Layout,
+        name: &str,
+    ) -> Self {
         let mut diffuse_bind_groups = vec![];
         for (i, x) in layout.bind_group_layouts.iter().enumerate() {
             let diffuse_bind_group = context
@@ -41,6 +42,16 @@ impl Descriptions for TextureDescription {
             diffuse_bind_groups,
         }
     }
+    pub fn update(&mut self, context: &Context, indices: &[u16]) -> () {
+        if let None = &self.index_buffer {
+            let index_buffer = index_buffer(&context, "texture description", indices);
+            self.index_buffer = Some(index_buffer);
+            return;
+        }
+    }
+}
+
+impl Descriptions for TextureDescription {
     fn render(&self, render_pass: &mut RenderPass) -> () {
         let ib = self.index_buffer.as_ref().unwrap();
         render_pass.set_index_buffer(ib.slice(..), wgpu::IndexFormat::Uint16);

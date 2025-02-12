@@ -1,34 +1,22 @@
-use engine::{
-    context::Context,
-    layout::LayoutSize,
-    scene::Scene,
-    vertex::{Vertex2D, Vertex2DTexture},
-};
+use engine::{context::Context, layout::LayoutSize, scene::Scene, vertex::Vertex2DTexture};
 use wgpu::{BindGroupLayoutEntry, VertexAttribute};
+pub mod background;
 
 use engine::description::*;
 
 pub struct Background {
     //pub index_buffer: Option<wgpu::Buffer>,
 }
+impl Background {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl Descriptions for Background {
-    fn new(
-        _entries: &[&[wgpu::BindGroupEntry]],
-        _context: &Context,
-        _layout: &engine::layout::Layout,
-        _name: &str,
-    ) -> Self
-    where
-        Self: Sized,
-    {
-        return Self {};
-    }
-
     fn render(&self, render_pass: &mut wgpu::RenderPass) -> () {
         render_pass.draw(0..6, 0..1);
     }
-
     fn as_any(&mut self) -> &mut dyn std::any::Any {
         self
     }
@@ -40,11 +28,6 @@ pub struct IntroContainer {
 
 impl IntroContainer {
     pub fn new(context: &Context) -> Self {
-        const BACKGROUND_ATTRIBUTES: &'static [VertexAttribute] = &[wgpu::VertexAttribute {
-            offset: 0,
-            shader_location: 0,
-            format: wgpu::VertexFormat::Float32x2,
-        }];
         const ATTRIBUTES: &'static [VertexAttribute] = &[
             wgpu::VertexAttribute {
                 offset: 0,
@@ -97,23 +80,32 @@ impl IntroContainer {
             )
             .add_texture_description("b", "B", "standard layout", context)
             .add_texture_description("r", "R", "standard layout", context)
-            .add_layout(
-                "background layout",
-                BACKGROUND_ATTRIBUTES,
-                &[],
-                include_str!("../../assets/background.wgsl"),
-                context,
-                Vertex2D::size(),
-            )
-            .add_description("background", Background {})
-            .add_font_desc(&context, "font", "background layout", &"hello,asdfasdfasdfasdfasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffALKFJLAKJSDFLKAJSFLKJALSKFJALKSJFLKAJSFLKAJSFLKAJSFLKAJSFLKJASLKFJALSKJFLAKJSFLKASJFLKAJSFLKAJSFLKAJSF:LKJASKFJ")
+            .add_texture_description("e", "E", "standard layout", context)
+            .add_texture_description("a", "A", "standard layout", context)
+            .add_texture_description("k", "K", "standard layout", context)
+            .add_texture_description("i", "I", "standard layout", context)
+            //.add_layout(
+            //    "background layout",
+            //    BACKGROUND_ATTRIBUTES,
+            //    &[],
+            //    include_str!("../../assets/background.wgsl"),
+            //    context,
+            //    Vertex2D::size(),
+            //)
+            //.add_description("background", Background {})
+            .add_font_description(&context, "font", &"Games\nPresents")
+            //.compile_pipeline(
+            //    "background",
+            //    &["background", "font"],
+            //    "background layout",
+            //    context,
+            //)
             .compile_pipeline(
-                "background",
-                &["background", "font"],
-                "background layout",
+                "intro",
+                &["b", "r", "e", "a", "k", "i", "font"],
+                "standard layout",
                 context,
-            )
-            .compile_pipeline("intro", &["b", "r"], "standard layout", context);
+            );
         Self { scene }
     }
 }

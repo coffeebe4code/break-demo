@@ -87,14 +87,13 @@ impl Scene {
         );
         self
     }
-    pub fn add_font_desc(
+    pub fn add_font_description(
         mut self,
         context: &Context,
         description_name: &str,
-        layout_name: &str,
         text: &str,
     ) -> Self {
-        let font = Font::new(&[], context, &self.layouts[layout_name], text);
+        let font = Font::new(context, text);
         self.descriptions.insert(
             description_name.to_string(),
             Rc::new(RefCell::new(Box::new(font))),
@@ -108,7 +107,6 @@ impl Scene {
         );
         self
     }
-    // figure out vertex buffer, how I want to store it, size etc.
     pub fn compile_pipeline(
         mut self,
         name: &str,
